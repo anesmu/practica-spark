@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 import util
-import pandas as pd
+from pyspark.sql.functions import *
+from pyspark.sql.types import StringType
 
 
 def main(spark):
@@ -14,9 +15,15 @@ def main(spark):
     df_google = spark.read.csv(absolute_file_path_google, header=True, inferSchema=True)
     df_amazon = spark.read.csv(absolute_file_path_amazon, header=True, inferSchema=True)
     df_products = df_google.union(df_amazon)
-    df_products.write.csv("/Users/anesmu/Desktop/spark/data/output.csv", header=True, mode="overwrite", sep=",")
-    #df_products.show(5)
-    #df_products.printSchema()
+    df_products.show(1000)
+    df_products = df_products.select([coalesce(col, lit(None)).alias(col) for col in df_products.columns])
+    df_products.show(1000)
+    df_products = df_products.select([lower(col).alias(col) for col in df_products.columns])
+    df_products.show(1000)
+    df_products = df_products.select(
+        [regexp_replace(col, "[^a-zA-Z0-9]", "").alias(col) for col in df_products.columns if
+         df_products.schema[col].dataType == StringType()])
+    df_products.show(1000)
 
 
 if __name__ == '__main__':
