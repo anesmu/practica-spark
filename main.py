@@ -48,7 +48,7 @@ def main(spark):
         .select(col("df1.id").alias("id1"), col("df2.id").alias("id2"),
                 levenshtein(col("df1.name"), col("df2.name")).alias("name_distance"),
                 levenshtein(col("df1.description"), col("df2.description")).alias("description_distance"))
-    df_distance.show(500, truncate=False)
+    df_distance.show(8000, truncate=False)
 
 
 if __name__ == '__main__':
