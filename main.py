@@ -17,14 +17,18 @@ def main(spark):
     df = Characterization.characterization_idf(df)
 
     # Part 3: Candidate_pairs
-    df_distance = Candidate_pairs.get_distance_df(df)
+    df_distance = Candidate_pairs.get_pair_cadidates(df)
+    df_distance.write.csv("/Users/anesmu/Desktop/spark/data/df_distance", header=True, mode="overwrite")
 
     df_distance.show(100, truncate=False)
+
+    return
 
 
 if __name__ == '__main__':
     spark_session = SparkSession.builder.appName("Offers ") \
-        .master("local[*]").getOrCreate()
+        .master("local[*]") \
+        .getOrCreate()
 
     spark_session.sparkContext.setLogLevel('warn')
     main(spark_session)
