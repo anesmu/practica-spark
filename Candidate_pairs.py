@@ -1,8 +1,7 @@
 import numpy as np
-from pyspark.sql.functions import col, udf, expr
 from pyspark.sql.types import DoubleType
 from scipy.spatial.distance import cosine
-from pyspark.sql import functions
+from pyspark.sql.functions import *
 
 
 def cosine_similarity(v1, v2):
@@ -13,8 +12,9 @@ def cosine_similarity(v1, v2):
 
 def get_distance_df(df):
     cos_sim = udf(cosine_similarity, DoubleType())
-
-    df_distance = df.alias("df1").crossJoin(df.alias("df2")) \
+    df_amazon = df.filter(col("id").like("%http%"))
+    df_google = df.filter(~(col("id").like("%http%")))
+    df_distance = df_amazon.alias("df1").crossJoin(df_google.alias("df2")) \
         .where(col("df1.id") != col("df2.id")) \
         .select(col("df1.id").alias("id1"), col("df2.id").alias("id2"),
                 cos_sim(col("df1.name_vector"), col("df2.name_vector")).alias("name_distance"),
@@ -22,6 +22,7 @@ def get_distance_df(df):
                 cos_sim(col("df1.manufacturer_vector"), col("df2.manufacturer_vector")).alias(
                     "manufacturer_distance"),
                 cos_sim(col("df1.price_vector"), col("df2.price_vector")).alias("price_distance"))
+    df_distance.show(100, truncate=False)
 
     return df_distance
 

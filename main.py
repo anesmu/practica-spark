@@ -15,6 +15,7 @@ def main(spark):
 
     # Part 2: characterization
     df = Characterization.characterization_idf(df)
+    df.show(100, truncate=False)
 
     # Part 3: Candidate_pairs
     df_distance = Candidate_pairs.get_pair_cadidates(df)
@@ -27,6 +28,7 @@ def main(spark):
 
 if __name__ == '__main__':
     spark_session = SparkSession.builder.appName("Offers ") \
+        .config("spark.sql.autoBroadcastJoinThreshold", -1) \
         .master("local[*]") \
         .getOrCreate()
 
