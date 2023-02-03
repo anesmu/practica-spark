@@ -21,7 +21,8 @@ def remove_special_characters(df):
 
 
 def remove_gbp_from_price(df):
-    df = df.withColumn(Constants.price, regexp_replace(col(Constants.price), " gbp", ""))
+    special_characters = "!@#%^&*()_+-={}|[]\\:\";'<>,.?/\"" + " gbp"
+    df = df.withColumn(Constants.price, translate(col(Constants.price), special_characters, ""))
 
     return df
 

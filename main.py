@@ -9,26 +9,25 @@ from pyspark.sql import SparkSession
 def main(spark):
     # Load df from  /data
     df = Util.load_df_from_data_folder(spark)
+    df.cache()
 
     # Part 1: standardization
-    df = Standardization.standardization_df(df)
+    df_standard = Standardization.standardization_df(df)
+    df_standard.cache()
 
     # Part 2: characterization
-    df = Characterization.characterization_idf(df)
-    df.show(100, truncate=False)
+    df_char = Characterization.characterization_idf(df_standard)
+    df_char.cache()
 
     # Part 3: Candidate_pairs
-    df_distance = Candidate_pairs.get_pair_cadidates(df)
-    df_distance.write.csv("/Users/anesmu/Desktop/spark/data/df_distance", header=True, mode="overwrite")
-
-    df_distance.show(100, truncate=False)
-
+    df_distance = Candidate_pairs.get_pair_cadidates(df_char)
+    df_distance.show(200, truncate=False)
+    print(df_distance.row())
     return
 
 
 if __name__ == '__main__':
     spark_session = SparkSession.builder.appName("Offers ") \
-        .config("spark.sql.autoBroadcastJoinThreshold", -1) \
         .master("local[*]") \
         .getOrCreate()
 
