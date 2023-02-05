@@ -3,7 +3,7 @@ from nltk import WordNetLemmatizer
 from pyspark.ml.feature import Tokenizer, StopWordsRemover, IDF, HashingTF, MinHashLSH
 from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.linalg.distributed import RowMatrix
-from pyspark.sql.functions import udf, collect_list, when, col, explode
+from pyspark.sql.functions import udf, collect_list, when, col, explode, expr, array
 from pyspark.sql.types import ArrayType, StringType
 from pyspark.sql.functions import split, size
 
@@ -45,19 +45,29 @@ def characterization_idf(df):
         df = df.drop(column + "_hash")
 
     grouped = df.groupBy("name_vector").agg(collect_list("id").alias("id"))
-    grouped.show(truncate=False)
-    separate_ids_udf = udf(separate_ids, ArrayType(StringType()))
-    grouped = grouped.withColumn("idGoogle", separate_ids_udf("id")[0])
-    grouped = grouped.withColumn("idAmazon", separate_ids_udf("id")[1])
-    filtered = grouped.select("idGoogle", "idAmazon").filter(
-        (col("idGoogle").isNotNull()) & (col("idAmazon").isNotNull()) & (~col("idGoogle").isin("[]")) & (
-            ~col("idAmazon").isin("[]")))
 
+    udf_split_list_http = udf(split_list_http, ArrayType(StringType()))
+    udf_split_list_no_http = udf(split_list_no_http, ArrayType(StringType()))
+
+    grouped = grouped.withColumn("idGoogle", udf_split_list_http(col("id")))
+    grouped = grouped.withColumn("idAmazon", udf_split_list_no_http(col("id")))
+
+    df_filtered = grouped.select("idGoogle", "idAmazon").filter(
+        (col("idGoogle").isNotNull()) & (col("idAmazon").isNotNull()) & (col("idGoogle") != array([])) & (
+                col("idAmazon") != array([])))
+    final = df_filtered.select("idAmazon", explode("idGoogle").alias("idGoogle"))
+    finaler = final.select("idGoogle", explode("idAmazon").alias("idAmazon"))
+
+    finaler.show(truncate=False)
+    final.printSchema()
     return df
 
 
-def separate_ids(ids):
-    with_http = [id for id in ids if "http" in id]
-    without_http = [id for id in ids if "http" not in id]
-    return with_http, without_http
+def split_list_http(l):
+    contains_http = [elem for elem in l if "http" in elem]
+    return contains_http
 
+
+def split_list_no_http(l):
+    rest = [elem for elem in l if "http" not in elem]
+    return rest
