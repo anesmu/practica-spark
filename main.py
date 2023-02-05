@@ -20,9 +20,12 @@ def main(spark):
     df_char.cache()
 
     # Part 3: Candidate_pairs
-    df_distance = Candidate_pairs.get_pair_cadidates(df_char)
-    df_distance.show(200, truncate=False)
-    print(df_distance.row())
+
+
+    # Part 4: Candidate_pairs
+    #df_distance = Candidate_pairs.get_pair_cadidates(df_char)
+    #df_distance.show(200, truncate=False)
+    #print("Number of rows: ", df_distance.count())
     return
 
 

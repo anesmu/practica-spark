@@ -13,11 +13,11 @@ def cosine_similarity(v1, v2):
 
 def get_distance_df(df):
     cos_sim = udf(cosine_similarity, DoubleType())
-    df_amazon = df.filter(col("id").like("%http%"))
-    df_google = df.filter(~(col("id").like("%http%")))
+    df_google = df.filter(col("id").like("%http%"))
+    df_amazon = df.filter(~(col("id").like("%http%")))
     df_distance = df_amazon.alias("df1").crossJoin(df_google.alias("df2")) \
         .where(col("df1.id") != col("df2.id")) \
-        .select(col("df1.id").alias("id1"), col("df2.id").alias("id2"),
+        .select(col("df1.id").alias("idAmazon"), col("df2.id").alias("idGoogle"),
                 cos_sim(col("df1.name_vector"), col("df2.name_vector")).alias("name_distance"),
                 cos_sim(col("df1.description_vector"), col("df2.description_vector")).alias("description_distance"),
                 cos_sim(col("df1.manufacturer_vector"), col("df2.manufacturer_vector")).alias(
@@ -29,7 +29,7 @@ def get_distance_df(df):
 def calculate_mean_cosine(df):
     df = df.withColumn("mean", (df["name_distance"] + df["description_distance"] + df["manufacturer_distance"] +
                                 df["price_distance"]) / 4)
-    df = df.filter(df["mean"] > 10)
+    df = df.filter(df["mean"] > 50)
 
     return df
 

@@ -1,8 +1,11 @@
 import nltk
 from nltk import WordNetLemmatizer
-from pyspark.ml.feature import Tokenizer, StopWordsRemover, IDF, HashingTF
-from pyspark.sql.functions import udf
+from pyspark.ml.feature import Tokenizer, StopWordsRemover, IDF, HashingTF, MinHashLSH
+from pyspark.mllib.linalg import Vectors
+from pyspark.mllib.linalg.distributed import RowMatrix
+from pyspark.sql.functions import udf, collect_list, when, col, explode
 from pyspark.sql.types import ArrayType, StringType
+from pyspark.sql.functions import split, size
 
 import Constants
 
@@ -41,4 +44,20 @@ def characterization_idf(df):
         df = idf_model.transform(df)
         df = df.drop(column + "_hash")
 
+    grouped = df.groupBy("name_vector").agg(collect_list("id").alias("id"))
+    grouped.show(truncate=False)
+    separate_ids_udf = udf(separate_ids, ArrayType(StringType()))
+    grouped = grouped.withColumn("idGoogle", separate_ids_udf("id")[0])
+    grouped = grouped.withColumn("idAmazon", separate_ids_udf("id")[1])
+    filtered = grouped.select("idGoogle", "idAmazon").filter(
+        (col("idGoogle").isNotNull()) & (col("idAmazon").isNotNull()) & (~col("idGoogle").isin("[]")) & (
+            ~col("idAmazon").isin("[]")))
+
     return df
+
+
+def separate_ids(ids):
+    with_http = [id for id in ids if "http" in id]
+    without_http = [id for id in ids if "http" not in id]
+    return with_http, without_http
+
