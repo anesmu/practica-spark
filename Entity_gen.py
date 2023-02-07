@@ -10,7 +10,6 @@ import Constants
 
 def entity_gen(df):
     df_candidates = get_pair_candidates(df)
-    df_candidates.show()
     gen_graph_frame(df, df_candidates)
     return df_candidates
 

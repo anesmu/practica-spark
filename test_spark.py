@@ -19,7 +19,7 @@ def main(spark):
 
     # Part 2: characterization
     df_characterized = Characterization.characterization_idf(df_standard)
-
+    df_standard.show()
     # Part 3: Candidate_pairs
     df_candidates = Entity_gen.entity_gen(df_characterized)
 
