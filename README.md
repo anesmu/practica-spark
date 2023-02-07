@@ -50,7 +50,7 @@ métricas clásicas que se pueden utilizar en este paso son:
 * La distancia de coseno: Típica cuando has convertido tus cadenas en vectores.
 * La distancia de Levenshtein.
 * La proximidad de los valores numéricos.
-* 
+
 Para puntuar los pares de candidatos también es posible utilizar un algoritmo de SparkML y
 entrenarlo con las características deseadas, utilizando para el entrenamiento los datos del fichero
 Amzon_GoogleProducts_perfectMapping.csv.
