@@ -24,7 +24,7 @@ def main(spark):
     df_candidates = Entity_gen.entity_gen(df_characterized)
 
     # Part 4: Get map coincidences
-    df_map = Candidate_score.get_pair_cadidates(df_characterized, df_candidates)
+    df_map = Candidate_score.get_pair_neighbor(df_characterized, df_candidates)
 
     # Part 5: Save results
     path = Util.get_absolute_file_path(Constants.path, Constants.result_path)

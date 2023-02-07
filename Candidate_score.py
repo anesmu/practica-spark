@@ -5,6 +5,18 @@ from scipy.spatial.distance import cosine
 from pyspark.sql.functions import round as r
 
 
+def get_pair_neighbor(df, df_candidates):
+    df_mixed = gen_df(df, df_candidates)
+    df_distance = get_distance_df(df_mixed)
+    df_distance_means = calculate_mean_cosine(df_distance)
+    df_map = df_distance_means.select("idGoogle", "idAmazon")
+
+    return df_map
+
+
+# All bellow are private methods that only are use on first method
+
+
 def cosine_similarity(v1, v2):
     v1 = np.array(v1.toArray())
     v2 = np.array(v2.toArray())
@@ -30,15 +42,6 @@ def calculate_mean_cosine(df):
                                    df["price_distance"]) / 4), 2))
     df = df.filter(df["mean"] > 37.5)
     return df
-
-
-def get_pair_cadidates(df, df_candidates):
-    df_mixed = gen_df(df, df_candidates)
-    df_distance = get_distance_df(df_mixed)
-    df_distance_means = calculate_mean_cosine(df_distance)
-    df_map = df_distance_means.select("idGoogle", "idAmazon")
-
-    return df_map
 
 
 def gen_df(df, df_candidates):

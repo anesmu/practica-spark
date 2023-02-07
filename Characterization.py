@@ -7,13 +7,6 @@ from pyspark.sql.types import ArrayType, StringType
 import Constants
 
 
-def lemmatize_tokens(tokens):
-    if tokens is None:
-        return None
-    lemmatizer = WordNetLemmatizer()
-    return [lemmatizer.lemmatize(token) for token in tokens]
-
-
 def characterization_idf(df):
     nltk.download('omw-1.4')
     nltk.download("wordnet")
@@ -41,3 +34,12 @@ def characterization_idf(df):
         df = idf_model.transform(df)
         df = df.drop(column + "_hash")
     return df
+
+
+# All bellow are private methods that only are use on first method
+
+def lemmatize_tokens(tokens):
+    if tokens is None:
+        return None
+    lemmatizer = WordNetLemmatizer()
+    return [lemmatizer.lemmatize(token) for token in tokens]

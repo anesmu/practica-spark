@@ -3,6 +3,17 @@ from pyspark.sql.functions import col, lower, regexp_replace, translate
 import Constants
 
 
+def standardization_df(df):
+    df = df_to_lower_case(df)
+    df = remove_special_characters(df)
+    df = remove_gbp_from_price(df)
+    df = fill_null_fields(df)
+
+    return df
+
+
+# All bellow are private methods that only are use on first method
+
 def df_to_lower_case(df):
     df = df.select(
         [lower(col(col_name)).alias(col_name) if col_name in Constants.col else col(col_name) for col_name in
@@ -29,13 +40,4 @@ def remove_gbp_from_price(df):
 
 def fill_null_fields(df):
     df = df.fillna("null_value", subset=None)
-    return df
-
-
-def standardization_df(df):
-    df = df_to_lower_case(df)
-    df = remove_special_characters(df)
-    df = remove_gbp_from_price(df)
-    df = fill_null_fields(df)
-
     return df

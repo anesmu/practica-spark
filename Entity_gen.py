@@ -15,6 +15,9 @@ def entity_gen(df):
     return df_candidates
 
 
+# All bellow are private methods that only are use on first method
+
+
 def get_pair_candidates(df):
     grouped_list = []
 
@@ -41,7 +44,8 @@ def get_pair_candidates(df):
 
 
 def gen_graph_frame(df, df_candidates):
-    edges = df_candidates.select("idAmazon", "idGoogle").withColumnRenamed("idAmazon", "src").withColumnRenamed("idGoogle", "dst")
+    edges = df_candidates.select("idAmazon", "idGoogle").withColumnRenamed("idAmazon", "src").withColumnRenamed(
+        "idGoogle", "dst")
     g = GraphFrame(df, edges)
     g.vertices.show()
     g.edges.show()
@@ -50,11 +54,11 @@ def gen_graph_frame(df, df_candidates):
     return
 
 
-def split_list_http(l):
-    contains_http = [elem for elem in l if "http" in elem]
+def split_list_http(element_list):
+    contains_http = [elem for elem in element_list if "http" in elem]
     return contains_http
 
 
-def split_list_no_http(l):
-    rest = [elem for elem in l if "http" not in elem]
+def split_list_no_http(element_list):
+    rest = [elem for elem in element_list if "http" not in elem]
     return rest
