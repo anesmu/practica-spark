@@ -21,6 +21,7 @@ def cosine_similarity(v1, v2):
     v1 = np.array(v1.toArray())
     v2 = np.array(v2.toArray())
     cos_dis = float(cosine(v1, v2))
+
     return round((1 - cos_dis) * 100, 2)
 
 
